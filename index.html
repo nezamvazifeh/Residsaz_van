@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>رسید واریز</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--tx:#1a2330;--mut:#6b7684;--bd:#dde2e8;--pr:#0f766e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151b;--card:#1a212a;--tx:#e8edf2;--mut:#93a0ae;--bd:#2c3642;--pr:#2dd4bf}}
+:root[data-theme="dark"]{--bg:#10151b;--card:#1a212a;--tx:#e8edf2;--mut:#93a0ae;--bd:#2c3642;--pr:#2dd4bf}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Vazirmatn,Tahoma,sans-serif}
+main{max-width:520px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0 14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+input,select{width:100%;padding:12px;font:inherit;font-size:16px;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:10px}
+.row{display:flex;gap:10px}.row>div{flex:1}
+button{width:100%;padding:14px;font:inherit;font-weight:700;font-size:16px;border:0;border-radius:12px;background:var(--pr);color:#fff;margin-top:10px}
+#out{max-width:100%;max-height:calc(100dvh - 230px);border-radius:10px;box-shadow:0 2px 14px rgba(0,0,0,.25)}
+#ov{display:none;position:fixed;inset:0;z-index:10;background:var(--bg);flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+#stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:12px}
+#bar{padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--bd)}
+#bar button{margin-top:8px}#bar .row button{margin-top:0}
+button.sec{background:transparent;color:var(--pr);border:1px solid var(--pr)}
+#seg{display:flex;gap:8px;margin-bottom:12px}#seg button{margin:0;background:var(--card);color:var(--pr);border:1px solid var(--pr)}#seg button.on{background:var(--pr);color:#fff}
+.hint{font-size:12px;color:var(--mut);text-align:center;margin-top:8px}
+</style>
+</head>
+<body>
+<main>
+<h1>صدور رسید واریز</h1>
+<div id="seg"><button id="mLic" class="on">گواهینامه</button><button id="mEdu">تحصیلی</button></div>
+<div class="card">
+<label>نام دفتر / مجموعه (ذخیره می‌شود)</label>
+<input id="office" placeholder="مثلاً: دفتر خدمات گواهینامه ...">
+<div id="eduRow" style="display:none">
+<label>مقطع تحصیلی</label>
+<select id="type"><option>کاردانی پیوسته</option><option>کاردانی ناپیوسته</option><option>کارشناسی پیوسته</option><option>کارشناسی ناپیوسته</option><option>کارشناسی ارشد</option><option>دیپلم</option></select>
+<label>رشته تحصیلی</label><input id="major" placeholder="مثلاً: مهندسی کامپیوتر">
+<div class="row"><div><label>سال فارغ‌التحصیلی</label><select id="gy"></select></div><div><label>نیم‌سال</label><select id="gs"><option>اول</option><option>دوم</option></select></div></div>
+</div>
+<div class="row" id="licRow">
+<div><label>پایه گواهینامه</label><select id="cls"><option>سوم</option><option>دوم</option><option>یکم</option><option>موتورسیکلت</option><option>ویژه</option></select></div>
+<div><label>گروه خونی</label><select id="blood"><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div>
+</div>
+<div class="row">
+<div><label>مبلغ (ریال)</label><input id="amount" inputmode="numeric" placeholder="0"></div>
+</div>
+<label>بابت</label>
+<select id="purposeSel">
+<option>ثبت‌نام آنلاین گواهینامه رانندگی</option>
+<option>پیش‌پرداخت ثبت‌نام گواهینامه</option>
+<option>تسویه حساب ثبت‌نام گواهینامه</option>
+<option>هزینه آزمون آیین‌نامه</option>
+<option value="">دلخواه...</option>
+</select>
+<input id="purposeCustom" placeholder="بابت را بنویسید" style="display:none;margin-top:8px">
+</div>
+<button id="make">صدور رسید</button>
+<div id="ov">
+<div id="stage"><img id="out" alt="رسید"></div>
+<div id="bar">
+<div class="row"><button id="share">ذخیره در گالری / ارسال</button><button id="again" class="sec">رسید جدید</button></div>
+<button id="edit" class="sec">ویرایش این رسید</button>
+<p class="hint">اگر دکمه کار نکرد، روی تصویر نگه دارید و «ذخیره تصویر» را بزنید و در واتس‌اپ بفرستید.</p>
+</div>
+</div>
+</main>
+<script>
+var $=function(i){return document.getElementById(i)};
+var FONT='Vazirmatn, Tahoma, sans-serif';
+var fa=function(s){return String(s).replace(/\d/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'[d]})};
+var en=function(s){return String(s).replace(/[۰-۹]/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)})};
+var U=['','یک','دو','سه','چهار','پنج','شش','هفت','هشت','نه','ده','یازده','دوازده','سیزده','چهارده','پانزده','شانزده','هفده','هجده','نوزده'];
+var T=['','','بیست','سی','چهل','پنجاه','شصت','هفتاد','هشتاد','نود'];
+var HH=['','صد','دویست','سیصد','چهارصد','پانصد','ششصد','هفتصد','هشتصد','نهصد'];
+var S=['','هزار','میلیون','میلیارد','تریلیون'];
+function w3(n){var p=[],h=Math.floor(n/100),r=n%100;if(h)p.push(HH[h]);
+ if(r){if(r<20)p.push(U[r]);else p.push(T[Math.floor(r/10)]+(r%10?' و '+U[r%10]:''))}return p.join(' و ')}
+function words(n){if(!n)return '';var parts=[],i=0;
+ while(n>0&&i<5){var g=n%1000;if(g){parts.unshift((g==1&&i==1?'':w3(g))+(S[i]?(g==1&&i==1?'':' ')+S[i]:''))}n=Math.floor(n/1000);i++}
+ return parts.join(' و ')}
+function today(){try{return new Intl.DateTimeFormat('fa-IR-u-ca-persian',{timeZone:'Asia/Tehran',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}catch(e){return ''}}
+function now(){try{return new Intl.DateTimeFormat('fa-IR',{timeZone:'Asia/Tehran',hour:'2-digit',minute:'2-digit'}).format(new Date())}catch(e){return ''}}
+function purpose(){return $('purposeSel').value||$('purposeCustom').value.trim()||'—'}
+function draw(){
+ var amt=Number(en($('amount').value).replace(/[^\d]/g,''))||0;var aw=amt?words(amt)+' ریال':'';var e=mode=='edu';
+ var rows=[['نوع ثبت‌نام',e?$('type').value:'گواهینامه پایه '+$('cls').value]].concat(e?[['رشته',$('major').value.trim()||'—'],['فارغ‌التحصیلی',$('gy').value?fa($('gy').value)+' – نیم‌سال '+$('gs').value:'—']]:[],[['مبلغ واریزی',amt?fa(amt.toLocaleString('en-US'))+' ریال':'—'],['تاریخ و ساعت',today()+'  –  '+now()],['بابت',purpose()]]);
+ var W=800,H=1360+(rows.length-7)*112,c=document.createElement('canvas');c.width=W;c.height=H;var x=c.getContext('2d');
+ x.direction='rtl';x.fillStyle='#fff';x.fillRect(0,0,W,H);
+ x.fillStyle='#0f766e';x.fillRect(0,0,W,170);
+ x.fillStyle='#fff';x.textAlign='center';x.font='700 38px '+FONT;
+ x.fillText($('office').value.trim()||'رسید پرداخت',W/2,80,W-80);
+ x.font='400 26px '+FONT;x.fillText('رسید واریز وجه',W/2,128);
+ x.fillStyle='#1a2330';x.font='700 32px '+FONT;
+ x.fillText(e?'مدرک '+$('type').value+' رشته '+($('major').value.trim()||'—')+' ثبت شد':'گواهینامه پایه '+$('cls').value+' با گروه خونی '+$('blood').value+' ثبت شد',W/2,250,W-80);
+ x.fillStyle='#16a34a';x.font='700 30px '+FONT;
+ x.fillText(aw?aw+' دریافت شد':'—',W/2,305,W-80);
+ x.strokeStyle='#e3e7ec';x.lineWidth=2;x.beginPath();x.moveTo(60,340);x.lineTo(W-60,340);x.stroke();
+ var y=400;x.textAlign='right';
+ rows.forEach(function(r,i){
+  var big=r[0]=='مبلغ واریزی';
+  x.fillStyle='#6b7684';x.font='400 24px '+FONT;x.fillText(r[0],W-60,y);
+  x.fillStyle=big?'#0f766e':'#1a2330';x.font='700 '+(big?40:30)+'px '+FONT;
+  x.fillText(r[1],W-60,y+(big?52:44),W-120);
+  x.strokeStyle='#e3e7ec';x.beginPath();x.moveTo(60,y+72);x.lineTo(W-60,y+72);x.stroke();
+  y+=(big?125:112);
+ });
+ x.fillStyle='#1a2330';x.textAlign='right';x.font='700 28px '+FONT;
+ x.fillText('رسید در قبال پرداختی شما',W-60,y+40,440);
+ x.save();x.translate(150,y+30);x.rotate(-0.15);x.strokeStyle='#16a34a';x.fillStyle='#16a34a';x.lineWidth=6;
+ x.strokeRect(-95,-38,190,76);x.textAlign='center';x.font='700 36px '+FONT;x.fillText('دریافت شد',0,12);x.restore();
+ x.fillStyle='#6b7684';x.textAlign='center';x.font='400 22px '+FONT;x.fillText('این رسید به صورت الکترونیکی صادر شده است',W/2,H-40);
+ $('out').src=c.toDataURL('image/png');return c;
+}
+function upd(){try{localStorage.setItem('office',$('office').value)}catch(e){}draw()}
+$('amount').addEventListener('input',function(){var v=en(this.value).replace(/[^\d]/g,'');this.value=v?fa(Number(v).toLocaleString('en-US')):'';upd()});
+['office','purposeCustom','cls','blood','major','gy','gs'].forEach(function(i){$(i).addEventListener('input',upd)});
+$('purposeSel').addEventListener('change',function(){$('purposeCustom').style.display=this.value?'none':'block';upd()});
+var PL=['ثبت‌نام آنلاین گواهینامه رانندگی','پیش‌پرداخت ثبت‌نام گواهینامه','تسویه حساب ثبت‌نام گواهینامه','هزینه آزمون آیین‌نامه'],PE=['ثبت‌نام آنلاین مدرک تحصیلی','پیش‌پرداخت ثبت‌نام','تسویه حساب ثبت‌نام'];
+function setType(){var e=mode=='edu';$('licRow').style.display=e?'none':'';$('eduRow').style.display=e?'':'none';
+ $('purposeSel').innerHTML=(e?PE:PL).map(function(t){return '<option>'+t+'</option>'}).join('')+'<option value="">دلخواه...</option>';$('purposeCustom').style.display='none';draw()}
+$('type').addEventListener('change',setType);
+var mode='lic';
+var Y=[];for(var y=90;y<=99;y++)Y.push(y);for(y=400;y<=406;y++)Y.push(y);
+$('gy').innerHTML='<option value="">انتخاب کنید</option>'+Y.map(function(y){return '<option value="'+y+'">'+fa(y)+'</option>'}).join('');
+function setMode(m){mode=m;$('mLic').className=m=='lic'?'on':'';$('mEdu').className=m=='edu'?'on':'';setType()}
+$('mLic').addEventListener('click',function(){setMode('lic')});
+$('mEdu').addEventListener('click',function(){setMode('edu')});
+var lastC;
+function resetAll(){['purposeCustom','major'].forEach(function(i){$(i).value=''});$('type').selectedIndex=0;$('gy').selectedIndex=0;$('gs').selectedIndex=0;mode='lic';$('mLic').className='on';$('mEdu').className='';$('cls').selectedIndex=0;$('blood').selectedIndex=0;$('amount').value=fa((10000000).toLocaleString('en-US'));setType();$('ov').style.display='none';window.scrollTo(0,0)}
+$('make').addEventListener('click',function(){lastC=draw();$('ov').style.display='flex'});
+$('edit').addEventListener('click',function(){$('ov').style.display='none'});
+$('again').addEventListener('click',function(){resetAll()});
+$('share').addEventListener('click',function(){
+ var c=lastC;
+ c.toBlob(function(b){
+  var f=new File([b],'receipt.png',{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){})}
+  else{var a=document.createElement('a');a.href=$('out').src;a.download='receipt.png';a.click();alert('اگر ذخیره نشد، روی تصویر نگه دارید و «ذخیره تصویر» را بزنید.')}
+ });
+});
+try{$('office').value=localStorage.getItem('office')||''}catch(e){}$('office').value=$('office').value||'اخذ استاد وان';
+$('amount').value=fa((10000000).toLocaleString('en-US'));
+(document.fonts&&document.fonts.load?Promise.all([document.fonts.load('400 24px Vazirmatn'),document.fonts.load('700 24px Vazirmatn')]).catch(function(){}):Promise.resolve()).then(draw);
+draw();
+</script>
+</body>
+</html>
